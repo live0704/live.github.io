@@ -1,2 +1,115 @@
-<h1>Our Website</h1>
-<p style="color: blue;">반갑습니다!</p>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 그래픽카드 확인하기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #ff9800;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #e68900;
+        }
+        .gpu-info {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        #gpuImage {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎮 내 그래픽카드 확인하기</h1>
+        <p>아래 버튼을 눌러 현재 사용 중인 그래픽카드 정보를 확인하세요.</p>
+        <button onclick="getGPU()">내 그래픽카드 이름 알아내기</button>
+        <div class="gpu-info" id="gpuInfo"></div>
+        <img id="gpuImage" alt="GPU Image">
+    </div>
+
+    <script>
+        function getGPU() {
+            var canvas = document.createElement("canvas");
+            var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            if (!gl) {
+                document.getElementById("gpuInfo").innerHTML = "⚠️ WebGL을 지원하지 않는 브라우저입니다.";
+                document.getElementById("gpuInfo").style.display = "block";
+                return;
+            }
+            var debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+            if (debugInfo) {
+                var gpu = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                document.getElementById("gpuInfo").innerHTML = "🖥️ 당신의 그래픽카드: <br> <strong>" + gpu + "</strong>";
+                document.getElementById("gpuInfo").style.display = "block";
+                fetchGPUImage(gpu);
+            } else {
+                document.getElementById("gpuInfo").innerHTML = "❌ 그래픽카드 정보를 가져올 수 없습니다.";
+                document.getElementById("gpuInfo").style.display = "block";
+            }
+        }
+
+        function fetchGPUImage(gpuName) {
+            // 그래픽카드 모델명에서 제조사(NVIDIA, AMD, Intel) 확인
+            let brand = "generic";
+            if (gpuName.toLowerCase().includes("nvidia")) brand = "nvidia";
+            else if (gpuName.toLowerCase().includes("amd")) brand = "amd";
+            else if (gpuName.toLowerCase().includes("intel")) brand = "intel";
+
+            // GPU 브랜드에 맞는 이미지 URL 설정
+            let imageUrl = {
+                "nvidia": "https://upload.wikimedia.org/wikipedia/commons/2/21/Nvidia_logo.svg",
+                "amd": "https://upload.wikimedia.org/wikipedia/commons/7/7c/AMD_Logo.svg",
+                "intel": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Intel_logo_%282020%2C_dark_blue%29.svg",
+                "generic": "https://upload.wikimedia.org/wikipedia/commons/6/6f/GPU_Generic.svg"
+            };
+
+            // 이미지 업데이트
+            document.getElementById("gpuImage").src = imageUrl[brand];
+            document.getElementById("gpuImage").style.display = "block";
+        }
+    </script>
+
+</body>
+</html>
